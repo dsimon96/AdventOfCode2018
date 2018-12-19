@@ -27,22 +27,32 @@ fn part1(file: File) -> Result<()> {
 }
 
 fn part2(file: File) -> Result<()> {
-    let lines: Vec<String> = BufReader::new(file).lines().map(|l| l.unwrap()).collect();
+    let mut prev: Vec<String> = Vec::new();
 
-    let result = lines.iter().enumerate().find_map(|(i, this)| {
-        let prev: &[String] = &lines[..i];
+    let mut result: Option<(String, String)> = None;
 
-        prev.iter().find_map(|other| {
-            if (*other).chars()
-                .zip(this.chars())
-                .filter(|(x, y)| x != y)
-                .count() == 1 {
-                Some((this, other))
-            } else {
-                None
-            }
-        })
-    });
+    for line in BufReader::new(file).lines() {
+        let this = line.unwrap();
+
+        let other = prev.iter()
+            .find_map(|other| {
+                if (*other).chars()
+                    .zip(this.chars())
+                    .filter(|(x, y)| x != y)
+                    .count() == 1 {
+                    Some(other.clone())
+                } else {
+                    None
+                }
+            });
+
+        if other.is_some() {
+            result = Some((this, other.unwrap()));
+            break;
+        }
+
+        prev.push(this);
+    };
 
     let (a, b) = result.unwrap();
 
